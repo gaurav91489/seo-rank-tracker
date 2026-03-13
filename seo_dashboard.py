@@ -1,3 +1,42 @@
+import streamlit as st
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+st.set_page_config(page_title="SEO Rank Tracker", layout="wide")
+st.title("🚀 SEO Rank Tracker Dashboard")
+
+url_input = st.text_input("Enter Website URL (e.g., testbook.com):")
+keyword = st.text_input("Enter Keyword to track:")
+
+if st.button("Check Ranking"):
+    if url_input and keyword:
+        with st.spinner('Searching Google...'):
+            # Google Search Simulation
+            headers = {'User-Agent': 'Mozilla/5.0'}
+            search_url = f"https://www.google.com/search?q={keyword.replace(' ', '+')}&num=50"
+            response = requests.get(search_url, headers=headers)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Finding links
+            links = []
+            for g in soup.find_all('div', class_='yuRUbf'):
+                a = g.find('a')
+                if a: links.append(a['href'])
+            
+            # Checking position
+            position = -1
+            for i, link in enumerate(links):
+                if url_input in link:
+                    position = i + 1
+                    break
+            
+            if position != -1:
+                st.success(f"🎯 Found! Your website is at Position: {position}")
+            else:
+                st.error("❌ Not found in top 50 results.")
+    else:
+        st.warning("Please enter both URL and Keyword.")
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -178,4 +217,5 @@ with open(fileName, 'w', newline='') as file:
             counter += 1
 
 print("Results saved to:", fileName)
+
 driver.quit()
